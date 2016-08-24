@@ -1,0 +1,68 @@
+<head>
+  <link rel="stylesheet" type="text/css" href="../styles/style.css"/>
+  <script>
+    
+    // The ID of the document element in which we insert the markdown document
+    var elementID;
+
+    // Gets the html of a markdown file hosted on github,
+    // must be a public repo
+    // url - the url of the markdown document
+    // id - the id of the tag to place the document inside of
+    var getGithubMarkdown = function(url, id) {
+        elementID = id;
+        httpGetAsync(url, insertHtml);
+    }
+    
+    function deGithubify(html, id){
+        // insert the whole github page
+        document.getElementById(id).innerHTML = html;
+        
+        // extract the markdown from the github page
+        document.getElementById(id).innerHTML = document.getElementsByClassName("markdown-body")[0].innerHTML;
+        
+        // remove all anchor links
+        var len = 1;
+        
+        while(len > 0) {
+          var anchors = document.getElementsByClassName("anchor");
+          anchors[0].parentNode.removeChild(anchors[0]);
+          len = anchors.length;
+        }  
+        
+        // get the degithubified html
+        var nonGithubHtml = document.getElementById(id).innerHTML;
+        
+        // clear the page
+        document.getElementById(id).innerHTML = "";
+        
+        return nonGithubHtml;
+    }
+
+    function insertHtml(html, id) {
+      // insert the degihubified html
+      document.getElementById(id).innerHTML = deGithubify(html, id);
+    }
+    
+    // async http get in raw JS, stolen from stackoverflow :/
+    function httpGetAsync(theUrl, callback)
+    {
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.onreadystatechange = function() { 
+            if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+                callback(xmlHttp.responseText, elementID); //callback to the insertHtml function
+        }
+        xmlHttp.open("GET", "http://cors.io/?u=" + theUrl, true); // true for asynchronous 
+        xmlHttp.send(null);
+    }
+    
+    // getting a document from one of my public repos, inserting degithubified html into the 'test' element
+    getGithubMarkdown("http://github.com/AranScope/pyblog/blob/master/README.md", "test");
+      
+  </script>
+</head>
+
+<body>
+  <div id = "test">
+  </div>
+</body>
